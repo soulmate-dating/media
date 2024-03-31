@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+
+  media:
+    container_name: media
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      - minio
+    restart: unless-stopped
+    networks:
+      - s3
+
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ROOT_USER: accesskey
+      MINIO_ROOT_PASSWORD: secretkey
+    command: server /data
+    volumes:
+      - minio-data:/data
+    networks:
+      - s3
+
+volumes:
+  minio-data:
+
+networks:
+  s3:
+    driver: bridge
