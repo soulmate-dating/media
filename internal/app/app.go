@@ -26,7 +26,11 @@ func (a Application) UploadFile(ctx context.Context, contentType string, data []
 	if err != nil {
 		return "", err
 	}
-	return a.client.GetLinkByName(hashString), nil
+	url, err := a.client.GetPresignedURL(ctx, hashString)
+	if err != nil {
+		return "", err
+	}
+	return url.String(), nil
 }
 
 func NewApp(client s3.Client) App {

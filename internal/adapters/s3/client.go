@@ -5,6 +5,8 @@ import (
 	"context"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"net/url"
+	"time"
 )
 
 const (
@@ -16,15 +18,16 @@ type Client interface {
 	Upload(ctx context.Context, objectName, contentType string, content []byte) error
 	Download(ctx context.Context, objectName, filePath string) error
 	Delete(ctx context.Context, objectName string) error
-	GetLinkByName(objectName string) string
+	GetPresignedURL(ctx context.Context, objectName string) (*url.URL, error)
 }
 
 type client struct {
 	client     *minio.Client
 	bucketName string
+	expiryTime time.Duration
 }
 
-func NewClient(endpoint, accessKey, secretKey, bucketName string, secure bool) (Client, error) {
+func NewClient(endpoint, accessKey, secretKey, bucketName string, expiryDuration time.Duration, secure bool) (Client, error) {
 	c, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
 		Secure: secure,
@@ -42,7 +45,7 @@ func NewClient(endpoint, accessKey, secretKey, bucketName string, secure bool) (
 	if err != nil {
 		return nil, err
 	}
-	return &client{client: c, bucketName: bucketName}, err
+	return &client{client: c, bucketName: bucketName, expiryTime: expiryDuration}, err
 }
 
 func (c *client) IsObjectExist(ctx context.Context, objectName string) (bool, error) {
@@ -73,6 +76,7 @@ func (c *client) Delete(ctx context.Context, objectName string) error {
 	return err
 }
 
-func (c *client) GetLinkByName(objectName string) string {
-	return c.client.EndpointURL().String() + "/" + c.bucketName + "/" + objectName
+func (c *client) GetPresignedURL(ctx context.Context, objectName string) (*url.URL, error) {
+	presignedURL, err := c.client.PresignedGetObject(ctx, c.bucketName, objectName, c.expiryTime, nil)
+	return presignedURL, err
 }
