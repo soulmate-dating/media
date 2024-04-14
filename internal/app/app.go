@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"github.com/soulmate-dating/media/internal/adapters/s3"
+	"strings"
 )
 
 var (
@@ -30,7 +31,7 @@ func (a Application) UploadFile(ctx context.Context, contentType string, data []
 	if err != nil {
 		return "", err
 	}
-	return url.String(), nil
+	return strings.Replace(url.String(), "minio:9000", "localhost:80", 1), nil
 }
 
 func NewApp(client s3.Client) App {
