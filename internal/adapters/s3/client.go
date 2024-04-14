@@ -3,9 +3,8 @@ package s3
 import (
 	"bytes"
 	"context"
-	"github.com/minio/minio-go/v7/pkg/credentials"
-
 	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
 const (
@@ -33,7 +32,16 @@ func NewClient(endpoint, accessKey, secretKey, bucketName string, secure bool) (
 	if err != nil {
 		return nil, err
 	}
-	err = c.MakeBucket(context.Background(), bucketName, minio.MakeBucketOptions{})
+	exists, err := c.BucketExists(context.Background(), bucketName)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		err = c.MakeBucket(context.Background(), bucketName, minio.MakeBucketOptions{})
+	}
+	if err != nil {
+		return nil, err
+	}
 	return &client{client: c, bucketName: bucketName}, err
 }
 
