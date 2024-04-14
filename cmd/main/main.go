@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -22,7 +23,7 @@ const (
 func main() {
 	ctx := context.Background()
 
-	s3Client, err := s3.NewClient("minio:9000", "accesskey", "secretkey", "media", false)
+	s3Client, err := s3.NewClient("minio:9000", "accesskey", "secretkey", "media", time.Hour, false)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
