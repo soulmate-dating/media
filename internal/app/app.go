@@ -21,7 +21,7 @@ type Application struct {
 
 func (a Application) UploadFile(ctx context.Context, contentType string, data []byte) (string, error) {
 	hash := sha256.Sum256(data)
-	hashString := fmt.Sprintf("%x", hash)
+	hashString := fmt.Sprintf("%x.png", hash)
 	err := a.client.Upload(ctx, hashString, contentType, data)
 	if err != nil {
 		return "", err
