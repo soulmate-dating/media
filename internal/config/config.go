@@ -8,8 +8,9 @@ import (
 )
 
 type API struct {
-	Network string `env:"API_NETWORK" envDefault:"tcp"`
-	Address string `env:"API_ADDRESS" envDefault:"8082"`
+	Network    string `env:"API_NETWORK" envDefault:"tcp"`
+	Address    string `env:"API_ADDRESS" envDefault:"8082"`
+	PublicHost string `env:"API_PUBLIC_HOST" envDefault:"localhost"`
 }
 
 type S3 struct {

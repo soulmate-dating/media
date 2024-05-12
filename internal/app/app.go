@@ -20,7 +20,8 @@ type App interface {
 }
 
 type Application struct {
-	client s3.Client
+	publicHost string
+	client     s3.Client
 }
 
 func (a Application) UploadFile(ctx context.Context, contentType string, data []byte) (string, error) {
@@ -30,11 +31,8 @@ func (a Application) UploadFile(ctx context.Context, contentType string, data []
 	if err != nil {
 		return "", err
 	}
-	url, err := a.client.GetPresignedURL(ctx, hashString)
-	if err != nil {
-		return "", err
-	}
-	return strings.Replace(url.String(), "minio:9000", "localhost:80", 1), nil
+	url := a.client.GetURL(ctx, hashString)
+	return strings.Replace(url.String(), url.Hostname(), a.publicHost, 1), nil
 }
 
 func New(ctx context.Context, cfg config.Config) App {
@@ -50,5 +48,5 @@ func New(ctx context.Context, cfg config.Config) App {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	return &Application{client: client}
+	return &Application{client: client, publicHost: cfg.API.PublicHost}
 }

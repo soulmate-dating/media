@@ -19,7 +19,7 @@ type Client interface {
 	Upload(ctx context.Context, objectName, contentType string, content []byte) error
 	Download(ctx context.Context, objectName, filePath string) error
 	Delete(ctx context.Context, objectName string) error
-	GetPresignedURL(ctx context.Context, objectName string) (*url.URL, error)
+	GetURL(ctx context.Context, objectName string) *url.URL
 }
 
 type Config struct {
@@ -94,7 +94,7 @@ func (c *client) Delete(ctx context.Context, objectName string) error {
 	return err
 }
 
-func (c *client) GetPresignedURL(ctx context.Context, objectName string) (*url.URL, error) {
-	presignedURL, err := c.client.PresignedGetObject(ctx, c.bucketName, objectName, c.expiryTime, nil)
-	return presignedURL, err
+func (c *client) GetURL(_ context.Context, objectName string) *url.URL {
+	url := c.client.EndpointURL().JoinPath(c.bucketName, objectName)
+	return url
 }
