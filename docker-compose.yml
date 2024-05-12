@@ -13,6 +13,7 @@ services:
         - S3_SECRET_KEY=secretkey
         - S3_BUCKET=media
         - S3_POLICY_FILE=./s3-policy.json
+        - API_PUBLIC_HOST=localhost:9000
     build:
       context: .
       dockerfile: Dockerfile

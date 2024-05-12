@@ -7,7 +7,6 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"log"
 	"net/url"
-	"time"
 )
 
 const (
@@ -23,20 +22,18 @@ type Client interface {
 }
 
 type Config struct {
-	Address        string
-	AccessKey      string
-	SecretKey      string
-	SessionToken   string
-	BucketName     string
-	ExpiryDuration time.Duration
-	Secure         bool
-	Policy         string
+	Address      string
+	AccessKey    string
+	SecretKey    string
+	SessionToken string
+	BucketName   string
+	Secure       bool
+	Policy       string
 }
 
 type client struct {
 	client     *minio.Client
 	bucketName string
-	expiryTime time.Duration
 }
 
 func NewClient(ctx context.Context, cfg Config) (Client, error) {
@@ -63,7 +60,7 @@ func NewClient(ctx context.Context, cfg Config) (Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &client{client: c, bucketName: cfg.BucketName, expiryTime: cfg.ExpiryDuration}, err
+	return &client{client: c, bucketName: cfg.BucketName}, err
 }
 
 func (c *client) IsObjectExist(ctx context.Context, objectName string) (bool, error) {

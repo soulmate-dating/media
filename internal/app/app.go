@@ -32,7 +32,7 @@ func (a Application) UploadFile(ctx context.Context, contentType string, data []
 		return "", err
 	}
 	url := a.client.GetURL(ctx, hashString)
-	return strings.Replace(url.String(), url.Hostname(), a.publicHost, 1), nil
+	return strings.Replace(url.String(), url.Host, a.publicHost, 1), nil
 }
 
 func New(ctx context.Context, cfg config.Config) App {
