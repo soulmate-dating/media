@@ -4,8 +4,11 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
-	"github.com/soulmate-dating/media/internal/adapters/s3"
+	"github.com/soulmate-dating/media/internal/config"
+	"log"
 	"strings"
+
+	"github.com/soulmate-dating/media/internal/adapters/s3"
 )
 
 var (
@@ -17,7 +20,8 @@ type App interface {
 }
 
 type Application struct {
-	client s3.Client
+	publicHost string
+	client     s3.Client
 }
 
 func (a Application) UploadFile(ctx context.Context, contentType string, data []byte) (string, error) {
@@ -27,13 +31,22 @@ func (a Application) UploadFile(ctx context.Context, contentType string, data []
 	if err != nil {
 		return "", err
 	}
-	url, err := a.client.GetPresignedURL(ctx, hashString)
-	if err != nil {
-		return "", err
-	}
-	return strings.Replace(url.String(), "minio:9000", "localhost:80", 1), nil
+	url := a.client.GetURL(ctx, hashString)
+	return strings.Replace(url.String(), url.Host, a.publicHost, 1), nil
 }
 
-func NewApp(client s3.Client) App {
-	return &Application{client: client}
+func New(ctx context.Context, cfg config.Config) App {
+	client, err := s3.NewClient(ctx, s3.Config{
+		Address:      cfg.S3.Address,
+		AccessKey:    cfg.S3.AccessKey,
+		SecretKey:    cfg.S3.SecretKey,
+		SessionToken: cfg.S3.SessionToken,
+		BucketName:   cfg.S3.Bucket,
+		Policy:       cfg.S3.Policy,
+		Secure:       cfg.S3.Secure,
+	})
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	return &Application{client: client, publicHost: cfg.API.PublicHost}
 }
