@@ -13,6 +13,7 @@ FROM ubuntu
 LABEL authors="ageev"
 
 COPY --from=build ./app/server ./server
+COPY --from=build ./app/s3-policy.json ./s3-policy.json
 
-EXPOSE 8080
+EXPOSE 8082
 CMD ./server
