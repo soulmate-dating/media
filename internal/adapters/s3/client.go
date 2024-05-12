@@ -95,6 +95,5 @@ func (c *client) Delete(ctx context.Context, objectName string) error {
 }
 
 func (c *client) GetURL(_ context.Context, objectName string) *url.URL {
-	url := c.client.EndpointURL().JoinPath(c.bucketName, objectName)
-	return url
+	return c.client.EndpointURL().JoinPath(c.bucketName, objectName)
 }
