@@ -9,17 +9,17 @@ import (
 
 type API struct {
 	Network    string `env:"API_NETWORK" envDefault:"tcp"`
-	Address    string `env:"API_ADDRESS" envDefault:"8082"`
-	PublicHost string `env:"API_PUBLIC_HOST" envDefault:"localhost"`
+	Address    string `env:"API_ADDRESS,required" example:"localhost:8082"`
+	PublicHost string `env:"API_PUBLIC_HOST,required"`
 }
 
 type S3 struct {
-	AccessKey    string `env:"S3_ACCESS_KEY"`
-	SecretKey    string `env:"S3_SECRET_KEY"`
+	AccessKey    string `env:"S3_ACCESS_KEY,required"`
+	SecretKey    string `env:"S3_SECRET_KEY,required"`
 	SessionToken string `env:"S3_SESSION_TOKEN" envDefault:""`
 	Bucket       string `env:"S3_BUCKET" envDefault:"media"`
-	Address      string `env:"S3_ADDRESS"`
-	PolicyFile   string `env:"S3_POLICY_FILE"`
+	Address      string `env:"S3_ADDRESS,required"`
+	PolicyFile   string `env:"S3_POLICY_FILE,required"`
 	Secure       bool   `env:"S3_SECURE" envDefault:"false"`
 	Policy       string
 }
