@@ -5,6 +5,7 @@ import (
 	"context"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"log"
 	"net/url"
 	"time"
 )
@@ -21,31 +22,48 @@ type Client interface {
 	GetPresignedURL(ctx context.Context, objectName string) (*url.URL, error)
 }
 
+type Config struct {
+	Address        string
+	AccessKey      string
+	SecretKey      string
+	SessionToken   string
+	BucketName     string
+	ExpiryDuration time.Duration
+	Secure         bool
+	Policy         string
+}
+
 type client struct {
 	client     *minio.Client
 	bucketName string
 	expiryTime time.Duration
 }
 
-func NewClient(endpoint, accessKey, secretKey, bucketName string, expiryDuration time.Duration, secure bool) (Client, error) {
-	c, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-		Secure: secure,
+func NewClient(ctx context.Context, cfg Config) (Client, error) {
+	log.Printf("setting up s3 client")
+	c, err := minio.New(cfg.Address, &minio.Options{
+		Creds:  credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, cfg.SessionToken),
+		Secure: cfg.Secure,
 	})
 	if err != nil {
 		return nil, err
 	}
-	exists, err := c.BucketExists(context.Background(), bucketName)
+	exists, err := c.BucketExists(context.Background(), cfg.BucketName)
 	if err != nil {
 		return nil, err
 	}
 	if !exists {
-		err = c.MakeBucket(context.Background(), bucketName, minio.MakeBucketOptions{})
+		err = c.MakeBucket(context.Background(), cfg.BucketName, minio.MakeBucketOptions{})
 	}
+	if cfg.Policy != "" {
+		log.Printf("applying policy")
+		err = c.SetBucketPolicy(ctx, cfg.BucketName, cfg.Policy)
+	}
+
 	if err != nil {
 		return nil, err
 	}
-	return &client{client: c, bucketName: bucketName, expiryTime: expiryDuration}, err
+	return &client{client: c, bucketName: cfg.BucketName, expiryTime: cfg.ExpiryDuration}, err
 }
 
 func (c *client) IsObjectExist(ctx context.Context, objectName string) (bool, error) {
