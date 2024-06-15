@@ -8,9 +8,11 @@ import (
 )
 
 type API struct {
-	Network    string `env:"API_NETWORK" envDefault:"tcp"`
-	Address    string `env:"API_ADDRESS,required" example:"localhost:8082"`
-	PublicHost string `env:"API_PUBLIC_HOST,required"`
+	Network        string `env:"API_NETWORK" envDefault:"tcp"`
+	Address        string `env:"API_ADDRESS,required" example:"localhost:8082"`
+	PublicHost     string `env:"API_PUBLIC_HOST,required"`
+	MaxReceiveSize int    `env:"API_MAX_RECEIVE_SIZE" envDefault:"20"`
+	MaxSendSize    int    `env:"API_MAX_SEND_SIZE" envDefault:"20"`
 }
 
 type S3 struct {
