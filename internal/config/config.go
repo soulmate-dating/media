@@ -26,9 +26,14 @@ type S3 struct {
 	Policy       string
 }
 
+type Metrics struct {
+	Address string `env:"METRICS_ADDRESS,required" example:":8080"`
+}
+
 type Config struct {
-	API API
-	S3  S3
+	API     API
+	S3      S3
+	Metrics Metrics
 }
 
 func Load() (Config, error) {
